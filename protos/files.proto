@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package filemanagement;
+
+// El servicio de manejo de archivos
+service FileManager {
+    // Envía un archivo al servidor
+    rpc SendFile (FileRequest) returns (FileResponse);
+
+    // Obtiene la lista de archivos disponibles
+    rpc ListFiles (ListFilesRequest) returns (ListFilesResponse);
+
+    // Notifica que un archivo se guardó correctamente
+    rpc FileSavedNotification (FileNotificationRequest) returns (FileNotificationResponse);
+
+    // Notifica que un archivo se replicó correctamente
+    rpc FileReplicatedNotification (FileNotificationRequest) returns (FileNotificationResponse);
+
+    // Replica un archivo a los puertos especificados
+    rpc ReplicateFile (ReplicateFileRequest) returns (FileResponse);
+}
+
+// La petición para enviar o replicar un archivo
+message FileRequest {
+    // El nombre del archivo
+    string filename = 1;
+    // El contenido del archivo en bytes
+    bytes content = 2;
+}
+
+// La respuesta después de enviar o replicar un archivo
+message FileResponse {
+    // Indica si la operación fue exitosa
+    bool success = 1;
+    // Mensaje de respuesta (ej. "Archivo guardado con éxito")
+    string message = 2;
+}
+
+// La petición para obtener la lista de archivos
+message ListFilesRequest {
+    // Filtro por nombre de archivo
+    string nameFilter = 1;
+    // Límite de archivos a retornar, útil para paginación
+    int32 limit = 2;
+    // Offset desde donde comenzar a retornar archivos, útil para paginación
+    int32 offset = 3;
+}
+
+// La respuesta con la lista de archivos
+message ListFilesResponse {
+    // Lista de nombres de archivos disponibles
+    repeated string filenames = 1;
+}
+
+// La petición para notificaciones
+message FileNotificationRequest {
+    // El nombre del archivo implicado
+    string filename = 1;
+}
+
+// La respuesta a una notificación
+message FileNotificationResponse {
+    // Indica si la notificación fue recibida con éxito
+    bool success = 1;
+    // Mensaje de la notificación (ej. "Archivo replicado con éxito")
+    string message = 2;
+}
+
+// La petición para replicar un archivo a los puertos especificados
+message ReplicateFileRequest {
+    // El nombre del archivo a replicar
+    string filename = 1;
+    // Los puertos a los que se debe replicar el archivo
+    repeated int32 ports = 2;
+}

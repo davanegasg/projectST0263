@@ -1,42 +1,70 @@
+import files_pb2
+import files_pb2_grpc
+import time
 import grpc
-import namenode_pb2
-import namenode_pb2_grpc
-import datanode_pb2
-import datanode_pb2_grpc
+#import requests #Libreria para realizar las request
+import aiohttp #Libreria para realizar request de forma asincrona
+import asyncio 
+import os
+import tkinter as tk
+from tkinter import filedialog
+import aiofiles
 
-def send_file_to_namenode(stub, file_name, data):
-    response = stub.SendFileToDataNode(namenode_pb2.SendFileToDataNodeRequest(file_name=file_name, data=data))
-    if response.success:
-        print("Operación exitosa")
-    else:
-        print(f"Error: {response.error_message}")
 
-def read_file_from_datanode(datanode_address, file_name):
-    channel = grpc.insecure_channel(datanode_address)
-    stub = datanode_pb2_grpc.DataNodeServiceStub(channel)
-    try:
-        response = stub.ReadFile(datanode_pb2.ReadFileRequest(file_name=file_name))
-        if response.success:
-            print("Archivo leído exitosamente.")
-            return response.data
+# La URL del endpoint al cual quieres enviar el archivo
+url = 'http://127.0.0.1:80/check-size'
+
+# Define el nombre del archivo que quieres enviar desde la carpeta testData
+file_name = "test-2.txt"  # Reemplaza esto con el nombre real del archivo
+
+async def run():
+    print("1. Send File")
+    print("2. List Files")
+    rpc_call = input("What u want to do: ")
+
+    if rpc_call == "1":
+        # Configura la ventana de selección de archivo
+        root = tk.Tk()
+        #root.withdraw()  # Oculta la ventana principal de tkinter
+        file_path = filedialog.askopenfilename()  # Muestra el diálogo de selección de archivo
+        # Comprueba si se seleccionó un archivo
+        if file_path:
+            # Envía el archivo y espera la respuesta
+            response = await send_file(url, file_path)
+            # Maneja la respuesta
+            print(response)
+            send_to_datanode_1(file_path)
         else:
-            print(f"Error al leer archivo: {response.error_message}")
-    except grpc.RpcError as e:
-        print(f"Error de RPC: {e}")
+            print("No se seleccionó ningún archivo.")
+    elif rpc_call == "2":
+            print("Not implemented")
 
-def main():
-    namenode_channel = grpc.insecure_channel('localhost:50052')
-    namenode_stub = namenode_pb2_grpc.NameNodeServiceServicer(namenode_channel)
+async def send_file(url, file_path):
+    # Abre el archivo en modo binario y lee su contenido de manera sincrónica
+    with open(file_path, 'rb') as f:
+        file_content = f.read()
 
-    # Ejemplo de cómo enviar un archivo al NameNode
-    send_file_to_namenode(namenode_stub, "example.txt", b"datos del archivo")
+    # Ahora entra al contexto asincrónico
+    async with aiohttp.ClientSession() as session:
+        # Prepara los datos para enviar, nota que 'data' ahora se construye de manera diferente
+        data = {'file': ('filename', file_content)}
+        # Realiza la solicitud POST de manera asíncrona
+        async with session.post(url, data=data) as response:
+            # Espera y lee la respuesta
+            response_text = await response.text()
+            return response_text
 
-    # Aquí necesitarías determinar la dirección del DataNode adecuado
-    # Para este ejemplo, usaremos una dirección de ejemplo
-    datanode_address = 'localhost:50051'
-    file_content = read_file_from_datanode(datanode_address, "example.txt")
-    if file_content:
-        print(f"Contenido del archivo: {file_content}")
+def send_to_datanode_1(file_path):
+    with grpc.insecure_channel('localhost:50051') as channel:
+        stub = files_pb2_grpc.FileManagerStub(channel)
+        with open(file_path, 'rb') as file:
+            file_bytes = file.read()
 
-if __name__ == '__main__':
-    main()
+        file_request = files_pb2.FileRequest(filename = "Test File", content=file_bytes)
+        file_response = stub.SendFile(file_request)
+        print("File successfully added")
+        print(file_response)
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run())
