@@ -47,7 +47,7 @@ async def send_file(url, file_path):
     # Ahora entra al contexto asincrónico
     async with aiohttp.ClientSession() as session:
         # Prepara los datos para enviar, nota que 'data' ahora se construye de manera diferente
-        data = {'file': ('filename', file_content)}
+        data = {'file': file_content}
         # Realiza la solicitud POST de manera asíncrona
         async with session.post(url, data=data) as response:
             # Espera y lee la respuesta
@@ -60,7 +60,9 @@ def send_to_datanode_1(file_path):
         with open(file_path, 'rb') as file:
             file_bytes = file.read()
 
-        file_request = files_pb2.FileRequest(filename = "Test File", content=file_bytes)
+        # Obtiene solo el nombre del archivo de la ruta completa
+        file_name = os.path.basename(file_path)
+        file_request = files_pb2.FileRequest(filename =file_name, content=file_bytes)
         file_response = stub.SendFile(file_request)
         print("File successfully added")
         print(file_response)
