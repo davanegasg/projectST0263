@@ -55,7 +55,7 @@ async def send_file(url, file_path):
             return response_text
 
 def send_to_datanode_1(file_path):
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel('localhost:50002') as channel:
         stub = files_pb2_grpc.FileManagerStub(channel)
         with open(file_path, 'rb') as file:
             file_bytes = file.read()

@@ -6,9 +6,34 @@ import grpc
 
 app = Flask(__name__)
 
+PORTS_LIST = []
+
 @app.route("/")
 def index():
     return "Flask test"
+
+@app.route('/health-check', methods=['POST'])
+def health_check():
+    data = request.json
+    port = data.get('port')
+    if port and port not in PORTS_LIST:
+        PORTS_LIST.append(port)
+        print(f"Health check recibido del puerto {port}. Puerto añadido a la lista.")
+    else:
+        print(f"Health check recibido del puerto {port}. Puerto ya presente en la lista.")
+    return jsonify({"message": "Health check recibido", "ports": PORTS_LIST})
+
+@app.route('/delete-port', methods=['POST'])
+def delete_port():
+    data = request.json
+    port = data.get('port')
+    if port in PORTS_LIST:
+        PORTS_LIST.remove(port)
+        message = f"Puerto {port} eliminado de la lista."
+    else:
+        message = f"El puerto {port} no se encontraba en la lista."
+    return jsonify({"message": message, "ports": PORTS_LIST})
+
 
 @app.route('/check-size', methods=['POST'])
 def check_size():

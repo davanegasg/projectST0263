@@ -18,6 +18,7 @@ service FileManager {
 
     // Replica un archivo a los puertos especificados
     rpc ReplicateFile (ReplicateFileRequest) returns (FileResponse);
+
 }
 
 // La petición para enviar o replicar un archivo
