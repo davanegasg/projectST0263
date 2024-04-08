@@ -111,7 +111,7 @@ datanode_server:
 
 ## opcional - detalles de la organización del código por carpetas o descripción de algún archivo. (ESTRUCTURA DE DIRECTORIOS Y ARCHIVOS IMPORTANTE DEL PROYECTO, comando 'tree' de linux)
 
-El proyecto está organizado por carpetas, tenemos las carpetas ports, downloads y group\underscore{group}\underscoreport\underscore{port} 
+El proyecto está organizado por carpetas, tenemos las carpetas ports, downloads y group\char`_{group}\char`_port\char`_{port} 
 
 ## opcionalmente - si quiere mostrar resultados o pantallazos 
 ![image](https://github.com/davanegasg/davanegasg-ST0263/assets/68928488/f927bda5-a398-4144-a5a8-682fdaf3a56f)
