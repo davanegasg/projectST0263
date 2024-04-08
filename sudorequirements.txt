@@ -1,0 +1,6 @@
+sudo pip install grpcio
+sudo pip install grpcio-tools
+sudo pip install requests
+sudo pip install aiohttp
+sudo pip install flask
+sudo python3.11 -m grpc_tools.protoc -I protos --python_out=. --grpc_python_out=. files.proto
