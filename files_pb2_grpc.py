@@ -25,20 +25,15 @@ class FileManagerStub(object):
                 request_serializer=files__pb2.ListFilesRequest.SerializeToString,
                 response_deserializer=files__pb2.ListFilesResponse.FromString,
                 )
-        self.FileSavedNotification = channel.unary_unary(
-                '/filemanagement.FileManager/FileSavedNotification',
-                request_serializer=files__pb2.FileNotificationRequest.SerializeToString,
-                response_deserializer=files__pb2.FileNotificationResponse.FromString,
-                )
-        self.FileReplicatedNotification = channel.unary_unary(
-                '/filemanagement.FileManager/FileReplicatedNotification',
-                request_serializer=files__pb2.FileNotificationRequest.SerializeToString,
-                response_deserializer=files__pb2.FileNotificationResponse.FromString,
-                )
         self.ReplicateFile = channel.unary_unary(
                 '/filemanagement.FileManager/ReplicateFile',
                 request_serializer=files__pb2.ReplicateFileRequest.SerializeToString,
                 response_deserializer=files__pb2.FileResponse.FromString,
+                )
+        self.DownloadFile = channel.unary_unary(
+                '/filemanagement.FileManager/DownloadFile',
+                request_serializer=files__pb2.DownloadRequest.SerializeToString,
+                response_deserializer=files__pb2.DownloadResponse.FromString,
                 )
 
 
@@ -60,22 +55,15 @@ class FileManagerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def FileSavedNotification(self, request, context):
-        """Notifica que un archivo se guardó correctamente
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def FileReplicatedNotification(self, request, context):
-        """Notifica que un archivo se replicó correctamente
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def ReplicateFile(self, request, context):
         """Replica un archivo a los puertos especificados
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DownloadFile(self, request, context):
+        """Descargar un archivo
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -94,20 +82,15 @@ def add_FileManagerServicer_to_server(servicer, server):
                     request_deserializer=files__pb2.ListFilesRequest.FromString,
                     response_serializer=files__pb2.ListFilesResponse.SerializeToString,
             ),
-            'FileSavedNotification': grpc.unary_unary_rpc_method_handler(
-                    servicer.FileSavedNotification,
-                    request_deserializer=files__pb2.FileNotificationRequest.FromString,
-                    response_serializer=files__pb2.FileNotificationResponse.SerializeToString,
-            ),
-            'FileReplicatedNotification': grpc.unary_unary_rpc_method_handler(
-                    servicer.FileReplicatedNotification,
-                    request_deserializer=files__pb2.FileNotificationRequest.FromString,
-                    response_serializer=files__pb2.FileNotificationResponse.SerializeToString,
-            ),
             'ReplicateFile': grpc.unary_unary_rpc_method_handler(
                     servicer.ReplicateFile,
                     request_deserializer=files__pb2.ReplicateFileRequest.FromString,
                     response_serializer=files__pb2.FileResponse.SerializeToString,
+            ),
+            'DownloadFile': grpc.unary_unary_rpc_method_handler(
+                    servicer.DownloadFile,
+                    request_deserializer=files__pb2.DownloadRequest.FromString,
+                    response_serializer=files__pb2.DownloadResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -155,40 +138,6 @@ class FileManager(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def FileSavedNotification(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/filemanagement.FileManager/FileSavedNotification',
-            files__pb2.FileNotificationRequest.SerializeToString,
-            files__pb2.FileNotificationResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def FileReplicatedNotification(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/filemanagement.FileManager/FileReplicatedNotification',
-            files__pb2.FileNotificationRequest.SerializeToString,
-            files__pb2.FileNotificationResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
     def ReplicateFile(request,
             target,
             options=(),
@@ -202,5 +151,22 @@ class FileManager(object):
         return grpc.experimental.unary_unary(request, target, '/filemanagement.FileManager/ReplicateFile',
             files__pb2.ReplicateFileRequest.SerializeToString,
             files__pb2.FileResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DownloadFile(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/filemanagement.FileManager/DownloadFile',
+            files__pb2.DownloadRequest.SerializeToString,
+            files__pb2.DownloadResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

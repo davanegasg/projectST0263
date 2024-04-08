@@ -10,15 +10,20 @@ service FileManager {
     // Obtiene la lista de archivos disponibles
     rpc ListFiles (ListFilesRequest) returns (ListFilesResponse);
 
-    // Notifica que un archivo se guardó correctamente
-    rpc FileSavedNotification (FileNotificationRequest) returns (FileNotificationResponse);
-
-    // Notifica que un archivo se replicó correctamente
-    rpc FileReplicatedNotification (FileNotificationRequest) returns (FileNotificationResponse);
-
     // Replica un archivo a los puertos especificados
     rpc ReplicateFile (ReplicateFileRequest) returns (FileResponse);
 
+    // Descargar un archivo
+    rpc DownloadFile(DownloadRequest) returns (DownloadResponse);
+
+}
+
+message DownloadRequest {
+    string filename = 1;
+}
+
+message DownloadResponse {
+    bytes content = 1;
 }
 
 // La petición para enviar o replicar un archivo
@@ -53,19 +58,6 @@ message ListFilesResponse {
     repeated string filenames = 1;
 }
 
-// La petición para notificaciones
-message FileNotificationRequest {
-    // El nombre del archivo implicado
-    string filename = 1;
-}
-
-// La respuesta a una notificación
-message FileNotificationResponse {
-    // Indica si la notificación fue recibida con éxito
-    bool success = 1;
-    // Mensaje de la notificación (ej. "Archivo replicado con éxito")
-    string message = 2;
-}
 
 // La petición para replicar un archivo a los puertos especificados
 message ReplicateFileRequest {
