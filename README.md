@@ -1,28 +1,41 @@
 # info de la materia: ST0263 Tópicos Especiales de Telemática
 #
-# Estudiante(s): Diego Alejandro Vanegas González, davanegasg@eafit.edu.co
+# Estudiante(s): Diego Alejandro Vanegas González y Sebastián Marin Gallego, davanegasg@eafit.edu.co - smaring2@eafit.edu.co
 #
 # Profesor: Juan Carlos Montoya Mendoza, jcmontoy@eafit.edu.co
 
 
-# Reto No 1 y 2: P2P - Comunicación entre procesos mediante API REST, RPC y MOM
+# PROYECTO 1: SISTEMA DE ARCHIVOS DISTRIBUIDOS
 #
 # 1. 
-Realizar el diseño e implementación de un sistema P2P donde cada nodo / proceso contiene uno
-o más microservicios que soportan un sistema de compartición de archivos distribuido y
-descentralizado.
+Realizar el diseño e implementación de un sistema de archivos distribuidos, que permite compartir y acceder de forma concurrente un conjunto de archivos que se encuentran almacenados en diferentes nodos. El cual, permite visualizar la ubicación de un bloque y su URI, si esta URI está caida, intenta acceder al archivo en el resto de puertos que están habilitados y contienen este archivo.
+
 ## 1.1. Que aspectos cumplió o desarrolló de la actividad propuesta por el profesor (requerimientos funcionales y no funcionales)
-Cumplí con implementar 2 servicios Dummy (Download y Upload)
-Implementar Middleware API REST y MOM
-Cada Peer contiene 2 Modulos, Servidor y Cliente.
-Archivo de configuración peer_config.json para cada Peer
-Bootstrap.py para ejecutar todos los servidores y clientes y utilizar sus servicios mediante API REST
-MOM Esta escuchando cada petición para notificar las peticiones que se realicen
+
+- Tenemos dos canales de comunicación
+- - Canal de Control mediante API REST para gestionar los recursos que ingresan y salen.
+  - Canal de Datos mediante gRPC para enviar diversas solicitudes y realizar la escritura y lectura de bloques
+ 
+La escritura y lectura de los archivos, debe ser directamente realizado entre el Cliente y el
+DataNode. Debe definir un algoritmo para distribución de los bloques y su replicación.
+• La unidad mínima de replicación – por facilidad – se tomará como bloque.
+• Un bloque al menos debe estar en dos DataNode
+• La transferencia de un archivo, se hace desde cada uno de los Datanodes que contengan
+bloques principales o replicas. Por facilidad y producto mínimo viable, el namenode
+entrega al cliente la lista y el orden donde se encuentran los bloques de un archivo (lista
+de bloques y URI).
+• A nivel de escritura de un archivo en el sistema, se realizará la transferencia directa entre
+el cliente y un grupo de DataNode seleccionado con un criterio de op:mización del
+NameNode para elegir los DataNodes más adecuado de acuerdo a alguna métrica.
+• Un DataNode que recibe un bloque de un Cliente se convierte en un Leader del bloque y
+este será encargado de replicar a otro DataNode el bloque de este archivo para Tolerancia
+a fallos, este segundo DataNode lo conoceremos como Follower para este archivo.
+
+El envio de archivos se realiza mediante el filtrado del archivo, pasando por namenode y este nos devuelve el grupo al cual se enviará el archivo que vayamos a almacenar. De esta forma, podemos filtrar y diferentes archivos y tener una mejor gestión de nuestros recursos
+
+Implementamos un filtro simple, que consiste en si el archivo pesa más de 50kb, se va para el grupo 2 y sino, se va para el grupo 1.
 
 ## 1.2. Que aspectos NO cumplió o desarrolló de la actividad propuesta por el profesor (requerimientos funcionales y no funcionales)
-
-Implementación del Middleware gRPC
-Utilizar dos lenguajes de programación
 
 # 2. información general de diseño de alto nivel, arquitectura, patrones, mejores prácticas utilizadas.
 
