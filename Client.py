@@ -1,14 +1,10 @@
 import files_pb2
 import files_pb2_grpc
-import time
 import grpc
-#import requests #Libreria para realizar las request
 import aiohttp #Libreria para realizar request de forma asincrona
 import asyncio 
 import os
-import tkinter as tk
-from tkinter import filedialog
-import aiofiles
+
 
 
 # La URL del endpoint al cual quieres enviar el archivo
@@ -20,24 +16,23 @@ file_name = "test-2.txt"  # Reemplaza esto con el nombre real del archivo
 async def run():
     print("1. Send File")
     print("2. List Files")
-    rpc_call = input("What u want to do: ")
+    rpc_call = input("What do you want to do: ")
 
     if rpc_call == "1":
-        # Configura la ventana de selección de archivo
-        root = tk.Tk()
-        #root.withdraw()  # Oculta la ventana principal de tkinter
-        file_path = filedialog.askopenfilename()  # Muestra el diálogo de selección de archivo
-        # Comprueba si se seleccionó un archivo
-        if file_path:
+        # Solicita al usuario que ingrese la ruta del archivo
+        file_path = input("Ingrese la ruta completa del archivo a enviar: ")
+        
+        # Verifica que la ruta del archivo no esté vacía y que el archivo exista
+        if file_path and os.path.exists(file_path):
             # Envía el archivo y espera la respuesta
             response = await send_file(url, file_path)
             # Maneja la respuesta
             print(response)
             send_to_datanode_1(file_path)
         else:
-            print("No se seleccionó ningún archivo.")
+            print("Ruta de archivo no válida o archivo no encontrado.")
     elif rpc_call == "2":
-        # Llama a la nueva función para obtener las ubicaciones de los archivos
+        # Llama a la función para obtener las ubicaciones de todos los archivos
         all_file_locations = await get_all_file_locations()
         print("Ubicaciones de todos los archivos:")
         for filename, ports in all_file_locations.items():

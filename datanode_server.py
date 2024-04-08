@@ -8,6 +8,7 @@ import sys
 import os
 import requests
 import atexit
+import socket
 
 
 
@@ -117,12 +118,16 @@ def get_active_ports():
         return []
 
 
-def start_datanode_server(port_group, group_number):
-    for port in port_group:
+def start_datanode_server(group_number, specific_port):
+    # Determina los puertos válidos para el grupo especificado
+    valid_ports = GROUP_1_PORTS if group_number == "1" else GROUP_2_PORTS if group_number == "2" else []
+
+    # Verifica que el puerto especificado sea válido para el grupo
+    if specific_port in valid_ports:
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        servicer = FilesServicer(group=group_number, port=port, group_1_ports=GROUP_1_PORTS, group_2_ports=GROUP_2_PORTS)
+        servicer = FilesServicer(group=group_number, port=specific_port, group_1_ports=GROUP_1_PORTS, group_2_ports=GROUP_2_PORTS)
         files_pb2_grpc.add_FileManagerServicer_to_server(servicer, server)
-        server_address = f"localhost:{port}"
+        server_address = f"localhost:{specific_port}"
         try:
             port_binding_result = server.add_insecure_port(server_address)
             if port_binding_result == 0:
@@ -131,29 +136,38 @@ def start_datanode_server(port_group, group_number):
             print(f"DataNode iniciado en {server_address} del grupo {group_number}")
 
             # Enviar petición de HealthChecker al namenode_server
-            send_health_check(port)
+            send_health_check(specific_port)
 
             # Registra la función de limpieza para desregistrar el puerto al terminar
-            atexit.register(unregister_port, port)
+            atexit.register(unregister_port, specific_port)
 
             server.wait_for_termination()
-            return
         except RuntimeError as e:
-            print(f"No se pudo iniciar el DataNode en el puerto {port}: {e}")
-    print(f"No hay puertos disponibles en el grupo {group_number} para iniciar un DataNode.")
+            print(f"No se pudo iniciar el DataNode en el puerto {specific_port}: {e}")
+    else:
+        print(f"El puerto {specific_port} no es válido para el grupo {group_number} o ya está en uso.")
 
-
+def is_port_available(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(("localhost", port))  # Intenta vincular el socket al puerto
+            return True  # Si se vincula correctamente, el puerto está disponible
+        except socket.error:
+            return False  # Si hay un error al vincular, el puerto ya está en uso
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Uso: python datanode_server.py {group}")
+    if len(sys.argv) != 3:  # Cambia a 3 porque ahora esperamos 2 argumentos: grupo y puerto
+        print("Uso: python datanode_server.py {grupo} {puerto}")
         sys.exit(1)
 
     group = sys.argv[1]
+    port = int(sys.argv[2])  # Convierte el argumento del puerto a entero
 
-    if group == "1":
-        start_datanode_server(GROUP_1_PORTS, group)
-    elif group == "2":
-        start_datanode_server(GROUP_2_PORTS, group)
+    # Llamada ajustada a start_datanode_server
+    if group in ["1", "2"]:  # Verifica que el grupo sea válido
+        if is_port_available(port):
+            start_datanode_server(group, port)
+        else:
+            print(f"El puerto {port} ya está en uso. Por favor, intente con otro puerto.")
     else:
         print("Grupo no válido. Por favor, especifique 1 o 2.")
