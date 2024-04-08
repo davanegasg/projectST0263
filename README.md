@@ -111,23 +111,17 @@ datanode_server:
 
 ## opcional - detalles de la organización del código por carpetas o descripción de algún archivo. (ESTRUCTURA DE DIRECTORIOS Y ARCHIVOS IMPORTANTE DEL PROYECTO, comando 'tree' de linux)
 
-El proyecto está organizado por carpetas, tenemos las carpetas ports, downloads y group\_{group}\_port\_{port} 
+El proyecto está organizado por carpetas, tenemos las carpetas protos (Contiene el archivo .proto para el gRPC), downloads (Para los archivos descargados) y group\_{group}\_port\_{port} (Este contiene los archivos que se guardan, dependiendo del grupo y del puerto) y los archivos de datanode_server.py, namenode_server.py y client.py
 
 ## opcionalmente - si quiere mostrar resultados o pantallazos 
-![image](https://github.com/davanegasg/davanegasg-ST0263/assets/68928488/f927bda5-a398-4144-a5a8-682fdaf3a56f)
+![image](https://github.com/davanegasg/projectST0263/assets/68928488/97f458ef-6039-4ac7-b528-b112dd17e13d)
+![image](https://github.com/davanegasg/projectST0263/assets/68928488/2a56f6f0-9deb-4650-af3b-14f4c0a8645e)
+![image](https://github.com/davanegasg/projectST0263/assets/68928488/217573a5-8457-439e-839b-4946d2049b18)
+![image](https://github.com/davanegasg/projectST0263/assets/68928488/3fd09a8a-a342-4b4d-bb67-4d9d72824652)
 
-# 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc, con sus numeros de versiones.
 
-# IP o nombres de dominio en nube o en la máquina servidor.
+# 4. Descripción del ambiente de EJECUCIÓN (en producción) lenguaje de programación, librerias, paquetes, etc.
 
-## descripción y como se configura los parámetros del proyecto (ej: ip, puertos, conexión a bases de datos, variables de ambiente, parámetros, etc)
-
-## como se lanza el servidor.
-
-El servidor se puede lanzar utilizando python Peer/Peer1/Server.py o con python Peer/boostrap.py
-
-## opcionalmente - si quiere mostrar resultados o pantallazos 
-
-# 5. otra información que considere relevante para esta actividad.
-
-# referencias:
+Desplegamos el entorno de ejecución en AWS con Linux. 
+Utilizamos python como lenguaje principal para todo el código
+Librerias utilizadas: Flask, request, grpcio, grpcio-tools, aiohttp
