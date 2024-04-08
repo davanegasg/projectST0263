@@ -1,10 +1,17 @@
 from flask import Flask, request, jsonify
+import os
+import sys
+import socket
 
 app = Flask(__name__)
 
 PORTS_LIST = []
 FILE_PORTS_MAP = {}
 
+GROUPS_PORTS = {
+    "1": [50001, 50002, 50003],
+    "2": [50101, 50102],
+}
 
 @app.route("/")
 def index():
@@ -87,4 +94,48 @@ def check_size():
     else:
         return jsonify({"group": 2}), 200
 
-app.run(host="0.0.0.0", port=5000)
+def scan_and_update_file_ports_map():
+    for group, ports in GROUPS_PORTS.items():
+        for port in ports:
+            # Construye el path del directorio basado en el grupo y puerto
+            dir_path = f"./group_{group}_port_{port}"
+
+            # Verifica si el directorio existe
+            if os.path.exists(dir_path) and os.path.isdir(dir_path):
+                # Lista todos los archivos en el directorio
+                for filename in os.listdir(dir_path):
+                    file_path = os.path.join(dir_path, filename)
+                    # Verifica si es un archivo y no un directorio/subdirectorio
+                    if os.path.isfile(file_path):
+                        # Si el archivo ya está registrado, añade el puerto si aún no está listado
+                        if filename in FILE_PORTS_MAP:
+                            if port not in FILE_PORTS_MAP[filename]:
+                                FILE_PORTS_MAP[filename].append(port)
+                        else:
+                            FILE_PORTS_MAP[filename] = [port]
+
+def check_port(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(("127.0.0.1", port))
+            return True
+        except socket.error:
+            return False
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Please use: python namenode_server.py {port}")
+        sys.exit(1)
+
+    port = int(sys.argv[1])  # Convierte el argumento a entero
+
+    # Verifica si el puerto está en el rango permitido
+    if port not in [5098, 5099]:
+        print("Puerto no válido. Por favor, use 5098 o 5099.")
+        sys.exit(1)
+
+    if check_port(port):
+        scan_and_update_file_ports_map()
+        app.run(host="0.0.0.0", port=port)
+    else:
+        print(f"El puerto {port} ya está en uso. Por favor, intente con otro puerto.")
