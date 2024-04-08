@@ -1,12 +1,10 @@
 from flask import Flask, request, jsonify
-import files_pb2
-import files_pb2_grpc
-import time
-import grpc
 
 app = Flask(__name__)
 
 PORTS_LIST = []
+FILE_PORTS_MAP = {}
+
 
 @app.route("/")
 def index():
@@ -22,6 +20,41 @@ def health_check():
     else:
         print(f"Health check recibido del puerto {port}. Puerto ya presente en la lista.")
     return jsonify({"message": "Health check recibido", "ports": PORTS_LIST})
+
+@app.route('/active-nodes', methods=['GET'])
+def get_active_nodes():
+    return jsonify({"active_ports": PORTS_LIST})
+
+@app.route('/register-file', methods=['POST'])
+def register_file():
+    data = request.json
+    filename = data.get('filename')
+    port = data.get('port')
+
+    if not filename or port is None:
+        return jsonify({"error": "Filename and port are required."}), 400
+
+    if filename in FILE_PORTS_MAP:
+        if port not in FILE_PORTS_MAP[filename]:
+            FILE_PORTS_MAP[filename].append(port)
+    else:
+        FILE_PORTS_MAP[filename] = [port]
+
+    return jsonify({"message": f"Archivo {filename} registrado en el puerto {port}."})
+
+
+@app.route('/file-locations/<filename>', methods=['GET'])
+def file_locations(filename):
+    if filename in FILE_PORTS_MAP:
+        ports = FILE_PORTS_MAP[filename]
+        return jsonify({"filename": filename, "ports": ports})
+    else:
+        return jsonify({"error": f"Archivo {filename} no encontrado."}), 404
+
+@app.route('/all-files-locations', methods=['GET'])
+def all_file_locations():
+    return jsonify(FILE_PORTS_MAP)
+
 
 @app.route('/delete-port', methods=['POST'])
 def delete_port():
@@ -54,4 +87,4 @@ def check_size():
     else:
         return jsonify({"group": 2}), 200
 
-app.run(host="0.0.0.0", port=80)
+app.run(host="0.0.0.0", port=5000)
