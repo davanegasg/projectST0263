@@ -15,8 +15,8 @@ import socket
 # Establecer la verbosidad de gRPC a ERROR para suprimir mensajes detallados
 os.environ['GRPC_VERBOSITY'] = 'ERROR'
 
-GROUP_1_PORTS = [50001, 50002, 50003]
-GROUP_2_PORTS = [50101, 50102]
+GROUP_1_PORTS = [50051, 50052, 50053]
+GROUP_2_PORTS = [50101, 50102, 50103]
 
 # Un diccionario simple para rastrear los puertos en uso (esta información no persistirá entre ejecuciones del script)
 PORTS_IN_USE = []

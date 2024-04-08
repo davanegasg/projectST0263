@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import os
 import sys
 import socket
+import requests
+
 
 app = Flask(__name__)
 
@@ -43,10 +45,13 @@ def register_file():
 
     if filename in FILE_PORTS_MAP:
         if port not in FILE_PORTS_MAP[filename]:
+            print(f"File {filename} saved on {port}")
             FILE_PORTS_MAP[filename].append(port)
     else:
+        print(f"File {filename} saved on {port}")
         FILE_PORTS_MAP[filename] = [port]
 
+    replicate_file_ports_map_to_other_namenode()
     return jsonify({"message": f"Archivo {filename} registrado en el puerto {port}."})
 
 
@@ -94,6 +99,14 @@ def check_size():
     else:
         return jsonify({"group": 2}), 200
 
+@app.route('/update-file-ports-map', methods=['POST'])
+def update_file_ports_map():
+    global FILE_PORTS_MAP  # Asegúrate de usar la variable global
+    incoming_map = request.json
+    FILE_PORTS_MAP = incoming_map  # Actualiza el mapa actual con el recibido
+    return jsonify({"message": "FILE_PORTS_MAP actualizado exitosamente"}), 200
+
+
 def scan_and_update_file_ports_map():
     for group, ports in GROUPS_PORTS.items():
         for port in ports:
@@ -121,6 +134,21 @@ def check_port(port):
             return True
         except socket.error:
             return False
+
+def replicate_file_ports_map_to_other_namenode():
+    # Determina el puerto del otro namenode server
+    other_namenode_port = 5098 if port == 5099 else 5099
+    other_namenode_url = f"http://127.0.0.1:{other_namenode_port}/update-file-ports-map"
+
+    try:
+        # Envía FILE_PORTS_MAP al otro namenode server
+        response = requests.post(other_namenode_url, json=FILE_PORTS_MAP)
+        if response.status_code == 200:
+            print(f"Replicación exitosa al namenode en el puerto {other_namenode_port}")
+        else:
+            print(f"Fallo la replicación al namenode en el puerto {other_namenode_port}: {response.status_code}")
+    except Exception as e:
+        print(f"Error al replicar a namenode en el puerto {other_namenode_port}: {e}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
