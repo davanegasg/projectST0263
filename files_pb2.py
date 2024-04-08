@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x66iles.proto\x12\x0e\x66ilemanagement\"0\n\x0b\x46ileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"0\n\x0c\x46ileResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"E\n\x10ListFilesRequest\x12\x12\n\nnameFilter\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\x0e\n\x06offset\x18\x03 \x01(\x05\"&\n\x11ListFilesResponse\x12\x11\n\tfilenames\x18\x01 \x03(\t\"+\n\x17\x46ileNotificationRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"<\n\x18\x46ileNotificationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"7\n\x14ReplicateFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\r\n\x05ports\x18\x02 \x03(\x05\x32\xd8\x03\n\x0b\x46ileManager\x12\x45\n\x08SendFile\x12\x1b.filemanagement.FileRequest\x1a\x1c.filemanagement.FileResponse\x12P\n\tListFiles\x12 .filemanagement.ListFilesRequest\x1a!.filemanagement.ListFilesResponse\x12j\n\x15\x46ileSavedNotification\x12\'.filemanagement.FileNotificationRequest\x1a(.filemanagement.FileNotificationResponse\x12o\n\x1a\x46ileReplicatedNotification\x12\'.filemanagement.FileNotificationRequest\x1a(.filemanagement.FileNotificationResponse\x12S\n\rReplicateFile\x12$.filemanagement.ReplicateFileRequest\x1a\x1c.filemanagement.FileResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x66iles.proto\x12\x0e\x66ilemanagement\"0\n\x0b\x46ileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"0\n\x0c\x46ileResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"E\n\x10ListFilesRequest\x12\x12\n\nnameFilter\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\x0e\n\x06offset\x18\x03 \x01(\x05\"&\n\x11ListFilesResponse\x12\x11\n\tfilenames\x18\x01 \x03(\t\"+\n\x17\x46ileNotificationRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"<\n\x18\x46ileNotificationResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"H\n\x14ReplicateFileRequest\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\x12\r\n\x05ports\x18\x03 \x03(\x05\x32\xd8\x03\n\x0b\x46ileManager\x12\x45\n\x08SendFile\x12\x1b.filemanagement.FileRequest\x1a\x1c.filemanagement.FileResponse\x12P\n\tListFiles\x12 .filemanagement.ListFilesRequest\x1a!.filemanagement.ListFilesResponse\x12j\n\x15\x46ileSavedNotification\x12\'.filemanagement.FileNotificationRequest\x1a(.filemanagement.FileNotificationResponse\x12o\n\x1a\x46ileReplicatedNotification\x12\'.filemanagement.FileNotificationRequest\x1a(.filemanagement.FileNotificationResponse\x12S\n\rReplicateFile\x12$.filemanagement.ReplicateFileRequest\x1a\x1c.filemanagement.FileResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,7 +34,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_FILENOTIFICATIONRESPONSE']._serialized_start=287
   _globals['_FILENOTIFICATIONRESPONSE']._serialized_end=347
   _globals['_REPLICATEFILEREQUEST']._serialized_start=349
-  _globals['_REPLICATEFILEREQUEST']._serialized_end=404
-  _globals['_FILEMANAGER']._serialized_start=407
-  _globals['_FILEMANAGER']._serialized_end=879
+  _globals['_REPLICATEFILEREQUEST']._serialized_end=421
+  _globals['_FILEMANAGER']._serialized_start=424
+  _globals['_FILEMANAGER']._serialized_end=896
 # @@protoc_insertion_point(module_scope)

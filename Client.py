@@ -12,7 +12,7 @@ import aiofiles
 
 
 # La URL del endpoint al cual quieres enviar el archivo
-url = 'http://127.0.0.1:80/check-size'
+url = 'http://127.0.0.1:5000/check-size'
 
 # Define el nombre del archivo que quieres enviar desde la carpeta testData
 file_name = "test-2.txt"  # Reemplaza esto con el nombre real del archivo
@@ -37,7 +37,20 @@ async def run():
         else:
             print("No se seleccionó ningún archivo.")
     elif rpc_call == "2":
-            print("Not implemented")
+        # Llama a la nueva función para obtener las ubicaciones de los archivos
+        all_file_locations = await get_all_file_locations()
+        print("Ubicaciones de todos los archivos:")
+        for filename, ports in all_file_locations.items():
+            print(f"{filename}: {ports}")
+
+async def get_all_file_locations():
+    async with aiohttp.ClientSession() as session:
+        # Asume que el endpoint está en el namenode_server en el puerto 80
+        url = 'http://127.0.0.1:5000/all-files-locations'
+        async with session.get(url) as response:
+            response_json = await response.json()
+            return response_json
+
 
 async def send_file(url, file_path):
     # Abre el archivo en modo binario y lee su contenido de manera sincrónica
@@ -55,14 +68,14 @@ async def send_file(url, file_path):
             return response_text
 
 def send_to_datanode_1(file_path):
-    with grpc.insecure_channel('localhost:50002') as channel:
+    with grpc.insecure_channel('localhost:50001') as channel:
         stub = files_pb2_grpc.FileManagerStub(channel)
         with open(file_path, 'rb') as file:
             file_bytes = file.read()
 
         # Obtiene solo el nombre del archivo de la ruta completa
         file_name = os.path.basename(file_path)
-        file_request = files_pb2.FileRequest(filename =file_name, content=file_bytes)
+        file_request = files_pb2.FileRequest(filename=file_name, content=file_bytes)
         file_response = stub.SendFile(file_request)
         print("File successfully added")
         print(file_response)

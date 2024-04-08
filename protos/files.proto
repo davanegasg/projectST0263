@@ -71,6 +71,8 @@ message FileNotificationResponse {
 message ReplicateFileRequest {
     // El nombre del archivo a replicar
     string filename = 1;
+    // El contenido del archivo en bytes
+    bytes content = 2;
     // Los puertos a los que se debe replicar el archivo
-    repeated int32 ports = 2;
+    repeated int32 ports = 3;
 }
