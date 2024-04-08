@@ -21,7 +21,7 @@ GROUP_2_PORTS = [50101, 50102]
 # Un diccionario simple para rastrear los puertos en uso (esta información no persistirá entre ejecuciones del script)
 PORTS_IN_USE = []
 
-URL = 'http://127.0.0.1:5000'
+URL = 'http://127.0.0.1:5098'
 
 class FilesServicer(files_pb2_grpc.FileManagerServicer):
     def __init__(self, group, port, group_1_ports, group_2_ports):
@@ -157,7 +157,7 @@ def is_port_available(port):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:  # Cambia a 3 porque ahora esperamos 2 argumentos: grupo y puerto
-        print("Uso: python datanode_server.py {grupo} {puerto}")
+        print("Please use: python datanode_server.py {grupo} {puerto}")
         sys.exit(1)
 
     group = sys.argv[1]
