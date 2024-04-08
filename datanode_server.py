@@ -1,6 +1,4 @@
 from concurrent import futures
-import time
-
 import grpc
 import files_pb2
 import files_pb2_grpc
@@ -21,7 +19,8 @@ GROUP_2_PORTS = [50101, 50102, 50103]
 # Un diccionario simple para rastrear los puertos en uso (esta información no persistirá entre ejecuciones del script)
 PORTS_IN_USE = []
 
-URL = 'http://127.0.0.1:5098'
+NAMENODE_URLS = ['http://127.0.0.1:5098', 'http://127.0.0.1:5099']  # Define las URLs de namenode_server
+
 
 class FilesServicer(files_pb2_grpc.FileManagerServicer):
     def __init__(self, group, port, group_1_ports, group_2_ports):
@@ -76,45 +75,76 @@ class FilesServicer(files_pb2_grpc.FileManagerServicer):
         # Preparar y devolver la respuesta
         return files_pb2.FileResponse(success=True, message=f"Replicación completada en el nodo {self.port}.")
 
-def register_file_and_ports(filename, ports):
-    try:
-        url = f'{URL}/register-file'  # Asume este endpoint en namenode_server para registrar archivo y puertos
-        data = {
-            'filename': filename,
-            'port': ports
-        }
-        response = requests.post(url, json=data)
-        print(f"Registro de archivo y puertos en namenode_server: {response.text}")
-    except Exception as e:
-        print(f"Error al registrar el archivo y puertos en namenode_server: {e}")
+    def DownloadFile(self, request, context):
+        # Construye la ruta del archivo basada en el grupo y puerto
+        folder_path = f"./group_{self.group}_port_{self.port}"
+        file_path = os.path.join(folder_path, request.filename)
 
+        # Intenta abrir y leer el archivo
+        try:
+            with open(file_path, 'rb') as file:
+                content = file.read()
+                return files_pb2.DownloadResponse(content=content)
+        except FileNotFoundError:
+            # Si el archivo no se encuentra, envía un mensaje de error usando context
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(f'Archivo {request.filename} no encontrado.')
+            return files_pb2.DownloadResponse()
 
+def perform_request(url_path, method='get', data=None):
+    success = False
+    response = None
+    for base_url in NAMENODE_URLS:
+        url = f'{base_url}{url_path}'
+        try:
+            if method == 'post':
+                response = requests.post(url, json=data)
+            else:
+                response = requests.get(url)
+
+            if response.status_code == 200:
+                success = True
+                break  # Sale del bucle si la petición es exitosa
+            else:
+                print(f"Error al contactar {url}: {response.status_code}")
+        except Exception as e:
+            print(f"Excepción al contactar {url}: {e}")
+
+    if not success:
+        print(f"Todas las solicitudes a {url_path} fallaron.")
+        return None
+    return response
+
+# Y aquí cómo ajustar las funciones que usan perform_request:
 def send_health_check(port):
-    try:
-        # Asume que el endpoint del health check está en /health-check en el namenode_server
-        url = f'{URL}/health-check'
-        response = requests.post(url, json={'port': port})
+    response = perform_request('/health-check', method='post', data={'port': port})
+    if response:
         print("Respuesta del HealthChecker:", response.text)
-    except Exception as e:
-        print(f"Error al realizar el health check: {e}")
+    else:
+        print("Error al realizar el health check, intentando con el otro servidor.")
+
+def register_file_and_ports(filename, port):
+    response = perform_request('/register-file', method='post', data={'filename': filename, 'port': port})
+    if response:
+        print(f"Registro de archivo y puerto en namenode_server: {response.text}")
+    else:
+        print("Error al registrar el archivo y puerto en namenode_server, intentando con el otro servidor.")
 
 def unregister_port(port):
-    try:
-        url = f'{URL}/delete-port'  # Asume este endpoint en namenode_server para eliminar un puerto
-        response = requests.post(url, json={'port': port})
-        print(f"Unregister port response: {response.text}")
-    except Exception as e:
-        print(f"Error al intentar eliminar el puerto {port}: {e}")
+    response = perform_request('/delete-port', method='post', data={'port': port})
+    if response:
+        print("Unregister port response:", response.text)
+    else:
+        print("Error al intentar eliminar el puerto, intentando con el otro servidor.")
 
 def get_active_ports():
-    try:
-        url = f'{URL}/active-nodes'
-        response = requests.get(url)
+    response = perform_request('/active-nodes', method='get')
+    if response:
         active_ports = response.json().get('active_ports', [])
         print("Nodos activos:", active_ports)
         return active_ports
-    except Exception as e:
-        print(f"Error al recuperar los nodos activos: {e}")
+    else:
+        print("Error al recuperar los nodos activos, intentando con el otro servidor.")
         return []
 
 
